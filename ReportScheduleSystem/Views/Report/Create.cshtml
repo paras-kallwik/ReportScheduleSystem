@@ -1,0 +1,80 @@
+﻿@model ReportScheduleSystem.Models.Reports
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+<h4>Reports</h4>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <!-- ✅ Ensure file upload works properly with enctype="multipart/form-data" -->
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                <label asp-for="User_Id" class="control-label"></label>
+                <input asp-for="User_Id" class="form-control" />
+                <span asp-validation-for="User_Id" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group form-check">
+                <input class="form-check-input" asp-for="Is_Active" id="isActiveCheck" />
+                <label class="form-check-label" for="isActiveCheck">@Html.DisplayNameFor(model => model.Is_Active)</label>
+            </div>
+
+            <!-- ✅ File Upload Input Field -->
+            <div class="form-group">
+                <label class="control-label">Upload File</label>
+                <input type="file" name="file" id="fileInput" class="form-control" required />
+                <span class="text-danger">@Html.ValidationMessage("FileName")</span> <!-- Server-side error -->
+                <div id="fileWarning" class="text-danger" style="display: none;">The File field is required</div> <!-- ✅ Client-side warning -->
+            </div>
+
+            <!-- ✅ Submit & Back Buttons -->
+            <div class="form-group mt-3">
+                <button type="submit" class="btn btn-primary">Create</button>
+                <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let fileInput = document.getElementById("fileInput");
+            let fileWarning = document.getElementById("fileWarning");
+            let form = document.querySelector("form");
+
+            form.addEventListener("submit", function (event) {
+                if (!fileInput.files.length) {
+                    event.preventDefault(); // Stop form submission
+                    fileWarning.style.display = "block"; // Show warning
+                } else {
+                    fileWarning.style.display = "none"; // Hide warning if file is selected
+                }
+            });
+
+            fileInput.addEventListener("change", function () {
+                if (fileInput.files.length) {
+                    fileWarning.style.display = "none"; // Hide warning when file is chosen
+                }
+            });
+        });
+    </script>
+}

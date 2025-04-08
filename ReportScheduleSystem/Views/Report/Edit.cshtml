@@ -1,0 +1,84 @@
+﻿@model ReportScheduleSystem.Models.Reports
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<h1>Edit</h1>
+
+<h4>Reports</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="form-group">
+                <label asp-for="User_Id" class="control-label"></label>
+                <input asp-for="User_Id" class="form-control" />
+                <span asp-validation-for="User_Id" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Name" class="control-label"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Is_Active" /> @Html.DisplayNameFor(model => model.Is_Active)
+                </label>
+            </div>
+
+            <!-- ✅ File Upload Section (Optional when Editing) -->
+            <div class="form-group">
+                <label class="control-label">Upload File</label>
+                <input type="file" name="file" id="fileInput" class="form-control" />
+                <span id="selectedFileName" class="text-muted">
+                    @if (!string.IsNullOrEmpty(Model.FileName))
+                    {
+                        <text>Current File: @Model.FileName</text>
+                    }
+                </span>
+                <span class="text-danger">@Html.ValidationMessage("File")</span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            let fileInput = document.getElementById("fileInput");
+            let selectedFileName = document.getElementById("selectedFileName");
+
+            if (fileInput) {
+                // Show selected file name dynamically
+                fileInput.addEventListener("change", function () {
+                    let fileName = this.files.length > 0 ? this.files[0].name : "";
+                    if (selectedFileName) {
+                        selectedFileName.innerText = fileName ? "Selected File: " + fileName : "Current File: @Model.FileName";
+                    }
+                });
+            }
+        });
+    </script>
+}

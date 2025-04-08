@@ -1,0 +1,103 @@
+﻿@model IEnumerable<ReportScheduleSystem.Models.Reports>
+
+@{
+    ViewData["Title"] = "Reports List";
+}
+
+
+<h1 class="mb-4">Reports List</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Create New Report
+    </a>
+</p>
+
+<!-- ✅ Scrollable Table Wrapper -->
+<div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+    <table id="reportsTable" class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+              @*  <th>@Html.DisplayNameFor(model => model.Id)</th> *@
+                <th>@Html.DisplayNameFor(model => model.User_Id)</th>
+                <th>@Html.DisplayNameFor(model => model.Name)</th>
+                <th>@Html.DisplayNameFor(model => model.Description)</th>
+                <th>@Html.DisplayNameFor(model => model.Is_Active)</th>
+                <th>File</th> <!-- ✅ File Column -->
+                <th>@Html.DisplayNameFor(model => model.Created_At)</th>
+                <th>@Html.DisplayNameFor(model => model.Updated_At)</th>
+                <th>Actions</th> <!-- ✅ Actions Column -->
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                  @*  // <td>@Html.DisplayFor(modelItem => item.Id)</td> *@
+                    <td>@Html.DisplayFor(modelItem => item.User_Id)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Name)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Description)</td>
+                    <td>
+                        @if (item.Is_Active)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </td>
+
+                    <!-- ✅ File Column -->
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.FileName))
+                        {
+                            <a asp-action="DownloadFile" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-file-earmark-arrow-down"></i> @item.FileName
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">No file</span>
+                        }
+                    </td>
+
+                    <td>@item.Created_At.ToString("yyyy-MM-dd HH:mm")</td>
+                    <td>@item.Updated_At.ToString("yyyy-MM-dd HH:mm")</td>
+
+                    <!-- ✅ Actions Column -->
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-warning">
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </a>
+                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-info">
+                            <i class="bi bi-info-circle"></i> Details
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i> Delete
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@section Scripts {
+    <!-- ✅ Load jQuery & DataTables -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#reportsTable').DataTable({
+                "paging": true,
+                "searching": true,
+                "info": true,
+                "lengthMenu": [5, 10, 25, 50],
+                "pageLength": 10
+            });
+        });
+    </script>
+}

@@ -6,7 +6,8 @@ namespace ReportScheduleSystem.Models
     public class Schedule
     {
         [Key]  // Primary Key
-        public int Id { get; set; }
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int ScheduleId { get; set; }
 
         [Required]
         public int ReportId { get; set; }  // ✅ Foreign Key referencing Reports.Id

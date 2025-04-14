@@ -2,50 +2,84 @@
 
 @{
     ViewData["Title"] = "Create";
+    bool showDropdown = ViewBag.ShowDropdown ?? false;
 }
 
 <h1>Create</h1>
-
 <h4>Schedule</h4>
 <hr />
+
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
+    <div class="col-md-6">
+        <form asp-action="Create" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="ReportId" class="control-label"></label>
-                <select asp-for="ReportId" class ="form-control" asp-items="ViewBag.ReportId"></select>
-            </div>
+
+            @if (showDropdown)
+            {
+                <!-- Report ID Dropdown -->
+                <div class="form-group">
+                    <label asp-for="ReportId">Select Report ID</label>
+                    <select asp-for="ReportId" class="form-control" id="reportIdDropdown">
+                        <option value="">-- Select Report --</option>
+                        @foreach (var item in ViewBag.ReportList as SelectList)
+                        {
+                            <option value="@item.Value">@item.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="ReportId" class="text-danger" id="reportIdError"></span>
+                </div>
+            }
+            else
+            {
+                <input type="hidden" asp-for="ReportId" />
+                <div class="form-group">
+                    <label>Report ID</label>
+                    <input class="form-control" value="@Model.ReportId" disabled />
+                </div>
+                @if (ViewBag.FileName != null)
+                {
+                    <div class="form-group">
+                        <label>Attached File:</label>
+                        <div class="form-control">@ViewBag.FileName</div>
+                    </div>
+                }
+            }
+
             <div class="form-group">
                 <label asp-for="User_Id" class="control-label"></label>
                 <input asp-for="User_Id" class="form-control" />
                 <span asp-validation-for="User_Id" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
+                <input asp-for="Name" class="form-control" readonly />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" />
+                <input asp-for="Description" class="form-control" readonly />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
+
             <div class="form-group form-check">
-                <label class="form-check-label">
-                    <input class="form-check-input" asp-for="Is_Active" /> @Html.DisplayNameFor(model => model.Is_Active)
-                </label>
+                <input class="form-check-input" asp-for="Is_Active" />
+                <label class="form-check-label" asp-for="Is_Active"></label>
             </div>
+
             <div class="form-group">
                 <label asp-for="CronExpression" class="control-label"></label>
                 <input asp-for="CronExpression" class="form-control" />
                 <span asp-validation-for="CronExpression" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <label asp-for="Email" class="control-label"></label>
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
+
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />
             </div>
@@ -58,5 +92,37 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @await Html.PartialAsync("_ValidationScriptsPartial");
+
+    <script>
+        $('#reportIdDropdown').change(function () {
+            var reportId = $(this).val();
+
+            if (reportId) {
+                $('#reportIdError').text("");
+
+                // AJAX: Load details
+                $.get('/Schedule/GetReportDetails', { id: reportId }, function (data) {
+                    $('#User_Id').val(data.user_Id);
+                    $('#Name').val(data.name);
+                    $('#Description').val(data.description);
+                    $('#Is_Active').prop("checked", data.isActive);
+                });
+            } else {
+                $('#User_Id').val('');
+                $('#Name').val('');
+                $('#Description').val('');
+                $('#Is_Active').prop("checked", false);
+                $('#reportIdError').text("Please select a report.");
+            }
+        });
+
+        // Prevent submit if ReportId is empty
+        $('form').submit(function () {
+            if ($('#reportIdDropdown').length && $('#reportIdDropdown').val() === '') {
+                $('#reportIdError').text("Report ID is required.");
+                return false;
+            }
+        });
+    </script>
 }

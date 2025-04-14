@@ -1,0 +1,85 @@
+﻿@model ReportScheduleSystem.Models.Schedule
+
+@{
+    ViewData["Title"] = "Schedule Details";
+}
+
+<h1>Schedule Details</h1>
+
+<div>
+    <h4>Schedule Info</h4>
+    <hr />
+    <dl class="row">
+        @* <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.ScheduleId)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.ScheduleId)
+        </dd> *@
+
+        <dt class="col-sm-3">
+            @Html.DisplayNameFor(model => model.ReportId)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayFor(model => model.ReportId)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayFor(model => model.ReportId)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayNameFor(model => model.Email)
+        </dd>
+
+        <dt class="col-sm-3">
+            @Html.DisplayFor(model => model.Email)
+        </dt>
+        <dd class="col-sm-9">
+            @Html.DisplayNameFor(model => model.CronExpression)
+        </dd>
+    </dl>
+
+    <h4>Report Info</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">
+            Name
+        </dt>
+        <dd class="col-sm-9">
+            @Model.Report?.Name
+        </dd>
+
+        <dt class="col-sm-3">
+            Description
+        </dt>
+        <dd class="col-sm-9">
+            @Model.Report?.Description
+        </dd>
+
+        <dt class="col-sm-3">
+            User ID
+        </dt>
+        <dd class="col-sm-9">
+            @Model.Report?.User_Id
+        </dd>
+
+        <dt class="col-sm-3">
+            Active
+        </dt>
+        <dd class="col-sm-9">
+            @(Model.Report?.Is_Active == true ? "Yes" : "No")
+        </dd>
+
+        <dt class="col-sm-3">
+            File Name
+        </dt>
+        <dd class="col-sm-9">
+            @Model.Report?.FileName
+        </dd>
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.ScheduleId" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</div>

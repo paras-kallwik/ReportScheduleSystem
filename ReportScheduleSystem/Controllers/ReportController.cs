@@ -48,9 +48,9 @@ namespace ReportScheduleSystem.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(Reports reports, IFormFile file)
         {
-            if (file == null || file.Length == 0)
             {
                 ModelState.AddModelError("File", "File is required.");
+            if (file == null || file.Length == 0)
                 return View(reports);
             }
 
@@ -80,7 +80,7 @@ namespace ReportScheduleSystem.Controllers
             reports.Created_At = DateTime.Now;
             reports.Updated_At = DateTime.Now;
 
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
                 return View(reports);
             }

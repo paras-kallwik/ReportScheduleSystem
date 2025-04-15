@@ -23,7 +23,7 @@ namespace ReportScheduleSystem.Controllers
             return View(schedules);
         }
 
-        [HttpGet]
+        
         [HttpGet]
         public IActionResult GetReportDetails(int id)
         {
@@ -84,7 +84,7 @@ namespace ReportScheduleSystem.Controllers
                 ModelState.AddModelError("ReportId", "Please select a valid Report.");
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 _Context.Schedules.Add(schedule);
                 await _Context.SaveChangesAsync();
@@ -104,7 +104,80 @@ namespace ReportScheduleSystem.Controllers
 
             return View(schedule);
         }
+        // ✅ EDIT - GET
+        public async Task<IActionResult> Edit(int id)
+        {
+            var schedule = await _Context.Schedules.FindAsync(id);
+            if (schedule == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return View(schedule);
+            }
 
+        }
 
+        // ✅ EDIT - POST
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, Schedule schedule)
+        {
+            if (id != schedule.ScheduleId)
+                return NotFound();
+
+            if (!ModelState.IsValid)
+            {
+                try
+                {
+                    _Context.Update(schedule);
+                    await _Context.SaveChangesAsync();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!_Context.Schedules.Any(e => e.ScheduleId == id))
+                        return NotFound();
+                    else
+                        throw;
+                }
+                return RedirectToAction(nameof(Index));
+            }
+
+            //ViewBag.ReportList = new SelectList(_Context.Reports, "Id", "Id", schedule.ReportId);
+            return View(schedule);
+        }
+
+        // ✅ DELETE - GET (Confirmation Page)
+        public async Task<IActionResult> Delete(int? id)
+        {
+          
+
+            //var schedule = await _Context.Schedules
+            //    .Include(s => s.Report)
+            //    .FirstOrDefaultAsync(m => m.ScheduleId == id);
+            var schedule = await _Context.Schedules.FindAsync(id);
+
+            if (schedule == null)
+                return NotFound();
+
+            return View(schedule);
+        }
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var schedule = await _Context.Schedules.FindAsync(id);
+            if (schedule != null)
+            {
+                _Context.Schedules.Remove(schedule);
+                await _Context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Index));
+        }
     }
+
+
+
 }
+

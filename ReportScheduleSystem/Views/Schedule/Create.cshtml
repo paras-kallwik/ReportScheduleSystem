@@ -47,7 +47,7 @@
 
             <div class="form-group">
                 <label asp-for="User_Id" class="control-label"></label>
-                <input asp-for="User_Id" class="form-control" />
+                <input asp-for="User_Id" class="form-control" readonly />
                 <span asp-validation-for="User_Id" class="text-danger"></span>
             </div>
 
@@ -68,15 +68,19 @@
                 <label class="form-check-label" asp-for="Is_Active"></label>
             </div>
 
+            <!-- DateTime Picker for Cron Expression -->
             <div class="form-group">
-                <label asp-for="CronExpression" class="control-label"></label>
-                <input asp-for="CronExpression" class="form-control" />
-                <span asp-validation-for="CronExpression" class="text-danger"></span>
+                <label for="scheduledDateTime">Select Date and Time</label>
+                <input type="datetime-local" id="scheduledDateTime" class="form-control" />
             </div>
 
+            <!-- Hidden CronExpression field auto-set by JS -->
+            <input type="hidden" asp-for="CronExpression" id="CronExpression" />
+
+            <!-- Email field -->
             <div class="form-group">
                 <label asp-for="Email" class="control-label"></label>
-                <input asp-for="Email" class="form-control" />
+                <input asp-for="Email" class="form-control" required />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
@@ -92,7 +96,7 @@
 </div>
 
 @section Scripts {
-    @await Html.PartialAsync("_ValidationScriptsPartial");
+    @await Html.PartialAsync("_ValidationScriptsPartial")
 
     <script>
         $('#reportIdDropdown').change(function () {
@@ -122,6 +126,15 @@
             if ($('#reportIdDropdown').length && $('#reportIdDropdown').val() === '') {
                 $('#reportIdError').text("Report ID is required.");
                 return false;
+            }
+        });
+
+        // Auto-generate cron expression from datetime-local
+        $('#scheduledDateTime').change(function () {
+            var dt = new Date($(this).val());
+            if (!isNaN(dt.getTime())) {
+                var cron = dt.getMinutes() + ' ' + dt.getHours() + ' ' + dt.getDate() + ' ' + (dt.getMonth() + 1) + ' *';
+                $('#CronExpression').val(cron);
             }
         });
     </script>

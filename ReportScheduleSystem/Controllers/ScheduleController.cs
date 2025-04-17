@@ -2,6 +2,9 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ReportScheduleSystem.Models;
+using System.Net.Mail;
+using System.Net;
+using Hangfire;
 
 namespace ReportScheduleSystem.Controllers
 {
@@ -76,34 +79,80 @@ namespace ReportScheduleSystem.Controllers
         // ✅ POST: Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Schedule schedule)
-        
+        public async Task<IActionResult> Create(Schedule schedule, string toEmail)
         {
             if (schedule.ReportId == 0)
             {
                 ModelState.AddModelError("ReportId", "Please select a valid Report.");
             }
 
-            if (!ModelState.IsValid)
+            if (ModelState.IsValid)
             {
-                _Context.Schedules.Add(schedule);
-                await _Context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                // ❌ Invalid form, show again with dropdown
+                var report = await _Context.Reports.FirstOrDefaultAsync(r => r.Id == schedule.ReportId);
+                ViewBag.FileName = report?.FileName;
+                ViewBag.ShowDropdown = report == null;
+
+                if (ViewBag.ShowDropdown)
+                {
+                    ViewBag.ReportList = new SelectList(_Context.Reports, "Id", "Name");
+                }
+
+                return View(schedule);
             }
+            string cron = ConvertToCronExpression(schedule.ScheduledDateTime);
+            schedule.CronExpression = cron;
 
-            // Either model is invalid or ReportId is missing
-            var report = await _Context.Reports.FirstOrDefaultAsync(r => r.Id == schedule.ReportId);
 
-            ViewBag.FileName = report?.FileName;
-            ViewBag.ShowDropdown = report == null;
+            // ✅ Valid case — Save schedule and schedule email job
+            _Context.Schedules.Add(schedule);
+            await _Context.SaveChangesAsync();
 
-            if (ViewBag.ShowDropdown)
-            {
-                ViewBag.ReportList = new SelectList(_Context.Reports, "Id", "Name");
-            }
 
-            return View(schedule);
+
+            //// ✅ Create cron expression from ScheduledDateTime
+            //string cron = $"{schedule.ScheduledDateTime.Minute} {schedule.ScheduledDateTime.Hour} {schedule.ScheduledDateTime.Day} {schedule.ScheduledDateTime.Month} *";
+
+            // ✅ Add recurring job with Hangfire
+            RecurringJob.AddOrUpdate<ScheduleController>(
+                $"job-{schedule.ScheduleId}",
+                x => x.SendReport(schedule.ReportId, toEmail),
+                cron
+            );
+
+            return RedirectToAction(nameof(Index));
         }
+
+
+        public async Task SendReport(int reportId, string toEmail)
+        {
+            //using (var context = new ReportDbContext()) // kyunki static method hai
+            //{
+                var report = _Context.Reports.Find(reportId);
+                if (report == null) return;
+
+                var message = new MailMessage();
+                message.To.Add(toEmail);
+                message.Subject = "Your Report";
+                message.Body = "Attached report file";
+                message.From = new MailAddress("your-email@gmail.com");
+
+                using (var stream = new MemoryStream(report.FileData))
+                {
+                    message.Attachments.Add(new Attachment(stream, report.FileName, report.ContentType));
+
+                    var smtp = new SmtpClient("smtp.gmail.com", 587);
+                    smtp.Credentials = new NetworkCredential("your-email@gmail.com", "your-app-password");
+                    smtp.EnableSsl = true;
+                    await smtp.SendMailAsync(message);
+                }
+            
+        }
+        private static string ConvertToCronExpression(DateTime dateTime)
+        {
+            return $"{dateTime.Minute} {dateTime.Hour} {dateTime.Day} {dateTime.Month} *";
+        }
+
         // ✅ EDIT - GET
         public async Task<IActionResult> Edit(int id)
         {

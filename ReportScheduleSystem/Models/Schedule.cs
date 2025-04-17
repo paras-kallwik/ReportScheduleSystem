@@ -31,6 +31,8 @@ namespace ReportScheduleSystem.Models
         [Required]
         [EmailAddress]
         public string Email { get; set; }  // Email to send report
+        [Required]
+        public DateTime ScheduledDateTime { get; set; }
 
         // ✅ Navigation property to link with Reports
         [ForeignKey("ReportId")]

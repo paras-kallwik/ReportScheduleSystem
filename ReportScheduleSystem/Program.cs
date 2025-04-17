@@ -1,3 +1,4 @@
+using Hangfire;
 using Microsoft.EntityFrameworkCore;
 using ReportScheduleSystem.Models;
 
@@ -7,6 +8,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ReportDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DBCS")));
+
+builder.Services.AddHangfire(config =>
+    config.UseSqlServerStorage(builder.Configuration.GetConnectionString("DBCS")));
+builder.Services.AddHangfireServer();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -22,7 +28,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+
 app.UseAuthorization();
+app.UseHangfireDashboard();
 
 app.MapControllerRoute(
     name: "default",

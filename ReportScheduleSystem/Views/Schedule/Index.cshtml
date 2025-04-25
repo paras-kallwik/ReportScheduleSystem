@@ -40,12 +40,12 @@
                     <a asp-action="Edit" asp-route-id="@item.ScheduleId" class="btn btn-sm btn-warning">Edit</a>
                     <a asp-action="Details" asp-route-id="@item.ScheduleId" class="btn btn-sm btn-info">Details</a>
                     <a asp-action="Delete" asp-route-id="@item.ScheduleId" class="btn btn-sm btn-danger">Delete</a>
-                    <a asp-action="SendReport" asp-controller="Schedule"
-                       asp-route-scheduleId="@item.ScheduleId"
-                       asp-route-toEmail="@item.Email"
-                       class="btn btn-sm btn-primary">
-                        Send Report
-                    </a>
+                     <a asp-action="SendReport" asp-controller="Schedule"
+                        asp-route-reportId="@item.ReportId"
+                        asp-route-toEmail="@item.Email"
+                        class="btn btn-sm btn-primary">
+                         Send Report
+                     </a>
                 </td>
             </tr>
         }

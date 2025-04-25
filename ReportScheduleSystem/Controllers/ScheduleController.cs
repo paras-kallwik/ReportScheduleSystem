@@ -63,23 +63,27 @@ namespace ReportScheduleSystem.Controllers
                     Name = report.Name,
                     Description = report.Description,
                     Is_Active = report.Is_Active,
-                    User_Id = report.User_Id
+                    User_Id = report.User_Id,
+                     ScheduledDateTime = DateTime.Now
                 };
 
                 ViewBag.ShowDropdown = false;
                 ViewBag.FileName = report.FileName;
+
                 return View(schedule);
             }
 
+            // If no report ID is passed, show the dropdown to choose
             ViewBag.ShowDropdown = true;
-            ViewBag.ReportList = new SelectList(_Context.Reports, "Id", "Id"); // Show only ID
+            ViewBag.ReportList = new SelectList(_Context.Reports, "Id", "Name"); // You can change to show "Name" instead of "Id" if you want
 
-            return View(new Schedule());
+            return View(new Schedule{ ScheduledDateTime = DateTime.Now });
         }
+
         // ✅ POST: Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Schedule schedule, string toEmail)
+        public async Task<IActionResult> Create(Schedule schedule)
         {
             if (schedule.ReportId == 0)
             {
@@ -100,8 +104,8 @@ namespace ReportScheduleSystem.Controllers
 
                 return View(schedule);
             }
-            string cron = ConvertToCronExpression(schedule.ScheduledDateTime);
-            schedule.CronExpression = cron;
+            DateTime scheduledTimeUtc = schedule.ScheduledDateTime.ToUniversalTime();
+            string cron = ConvertToCronExpression(scheduledTimeUtc);
 
 
             // ✅ Valid case — Save schedule and schedule email job
@@ -116,38 +120,47 @@ namespace ReportScheduleSystem.Controllers
             // ✅ Add recurring job with Hangfire
             RecurringJob.AddOrUpdate<ScheduleController>(
                 $"job-{schedule.ScheduleId}",
-                x => x.SendReport(schedule.ReportId, toEmail),
+                x => x.SendReport(schedule.ReportId,schedule.Email),
                 cron
             );
 
             return RedirectToAction(nameof(Index));
         }
 
-
-        public async Task SendReport(int reportId, string toEmail)
+        [HttpGet]
+        [AutomaticRetry(Attempts = 0)]  
+        public async Task<IActionResult> SendReport(int reportId, string toEmail)
         {
-            //using (var context = new ReportDbContext()) // kyunki static method hai
-            //{
-                var report = _Context.Reports.Find(reportId);
-                if (report == null) return;
+            try
+            {
+                var report = await _Context.Reports.FindAsync(reportId);
+                if (report == null)
+                    return Content("Report not found");
 
                 var message = new MailMessage();
                 message.To.Add(toEmail);
                 message.Subject = "Your Report";
                 message.Body = "Attached report file";
-                message.From = new MailAddress("your-email@gmail.com");
+                message.From = new MailAddress("parasvanve218@gmail.com");
 
                 using (var stream = new MemoryStream(report.FileData))
                 {
                     message.Attachments.Add(new Attachment(stream, report.FileName, report.ContentType));
 
                     var smtp = new SmtpClient("smtp.gmail.com", 587);
-                    smtp.Credentials = new NetworkCredential("your-email@gmail.com", "your-app-password");
+                    smtp.Credentials = new NetworkCredential("parasvanve218@gmail.com", "ktnt suqb xwxh mfcc"); // ✅ App password here
                     smtp.EnableSsl = true;
                     await smtp.SendMailAsync(message);
                 }
-            
+
+                return Content("✅ Email successfully sent!");
+            }
+            catch (Exception ex)
+            {
+                return Content("❌ Failed to send email: " + ex.Message);
+            }
         }
+
         private static string ConvertToCronExpression(DateTime dateTime)
         {
             return $"{dateTime.Minute} {dateTime.Hour} {dateTime.Day} {dateTime.Month} *";

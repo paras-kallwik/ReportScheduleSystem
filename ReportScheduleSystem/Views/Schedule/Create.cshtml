@@ -16,9 +16,8 @@
 
             @if (showDropdown)
             {
-                <!-- Report ID Dropdown -->
                 <div class="form-group">
-                    <label asp-for="ReportId">Select Report ID</label>
+                    <label asp-for="ReportId">Select Report</label>
                     <select asp-for="ReportId" class="form-control" id="reportIdDropdown">
                         <option value="">-- Select Report --</option>
                         @foreach (var item in ViewBag.ReportList as SelectList)
@@ -39,45 +38,53 @@
                 @if (ViewBag.FileName != null)
                 {
                     <div class="form-group">
-                        <label>Attached File:</label>
-                        <div class="form-control">@ViewBag.FileName</div>
+                        <label>Attached File</label>
+                        <div class="form-control" readonly>@ViewBag.FileName</div>
                     </div>
                 }
             }
 
             <div class="form-group">
                 <label asp-for="User_Id" class="control-label"></label>
-                <input asp-for="User_Id" class="form-control" readonly />
+                <input asp-for="User_Id" class="form-control" id="User_Id" readonly />
                 <span asp-validation-for="User_Id" class="text-danger"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" readonly />
+                <input asp-for="Name" class="form-control" id="Name" readonly />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
 
             <div class="form-group">
                 <label asp-for="Description" class="control-label"></label>
-                <input asp-for="Description" class="form-control" readonly />
+                <input asp-for="Description" class="form-control" id="Description" readonly />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
 
             <div class="form-group form-check">
-                <input class="form-check-input" asp-for="Is_Active" />
+                <input class="form-check-input" asp-for="Is_Active" id="Is_Active" />
                 <label class="form-check-label" asp-for="Is_Active"></label>
             </div>
 
-            <!-- DateTime Picker for Cron Expression -->
             <div class="form-group">
-                <label for="scheduledDateTime">Select Date and Time</label>
-                <input type="datetime-local" id="scheduledDateTime" class="form-control" />
+                <label asp-for="Frequency" class="control-label"></label>
+                <select asp-for="Frequency" class="form-control">
+                    <option value="Daily">Daily</option>
+                    <option value="Weekly">Weekly</option>
+                    <option value="Monthly">Monthly</option>
+                </select>
+                <span asp-validation-for="Frequency" class="text-danger"></span>
             </div>
 
-            <!-- Hidden CronExpression field auto-set by JS -->
+            <div class="form-group">
+                <label asp-for="ScheduledDateTime">Select Date and Time</label>
+                <input asp-for="ScheduledDateTime" type="datetime-local" class="form-control" id="scheduledDateTime" value="@Model.ScheduledDateTime.ToString("yyyy-MM-ddTHH:mm")" />
+                <span asp-validation-for="ScheduledDateTime" class="text-danger"></span>
+            </div>
+
             <input type="hidden" asp-for="CronExpression" id="CronExpression" />
 
-            <!-- Email field -->
             <div class="form-group">
                 <label asp-for="Email" class="control-label"></label>
                 <input asp-for="Email" class="form-control" required />
@@ -105,7 +112,6 @@
             if (reportId) {
                 $('#reportIdError').text("");
 
-                // AJAX: Load details
                 $.get('/Schedule/GetReportDetails', { id: reportId }, function (data) {
                     $('#User_Id').val(data.user_Id);
                     $('#Name').val(data.name);
@@ -121,7 +127,6 @@
             }
         });
 
-        // Prevent submit if ReportId is empty
         $('form').submit(function () {
             if ($('#reportIdDropdown').length && $('#reportIdDropdown').val() === '') {
                 $('#reportIdError').text("Report ID is required.");
@@ -129,7 +134,6 @@
             }
         });
 
-        // Auto-generate cron expression from datetime-local
         $('#scheduledDateTime').change(function () {
             var dt = new Date($(this).val());
             if (!isNaN(dt.getTime())) {

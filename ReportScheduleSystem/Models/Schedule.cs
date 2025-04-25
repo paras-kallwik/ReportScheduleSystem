@@ -5,38 +5,42 @@ namespace ReportScheduleSystem.Models
 {
     public class Schedule
     {
-        [Key]  // Primary Key
+        [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ScheduleId { get; set; }
 
         [Required]
-        public int ReportId { get; set; }  // ✅ Foreign Key referencing Reports.Id
+        public int ReportId { get; set; }
 
         [Required]
-        public int User_Id { get; set; }  // ✅ Stores which user scheduled the report
+        public int User_Id { get; set; }
 
         [Required]
         [StringLength(255)]
-        public string Name { get; set; }  // Copy from Reports
+        public string Name { get; set; }
 
         [StringLength(1000)]
-        public string Description { get; set; } // Copy from Reports
+        public string Description { get; set; }
 
         [Required]
         public bool Is_Active { get; set; } = true;
 
         [Required]
-        public string CronExpression { get; set; }  // Defines scheduling time
+        public string CronExpression { get; set; }
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; }  // Email to send report
+        public string Email { get; set; }
+
         [Required]
         public DateTime ScheduledDateTime { get; set; }
 
-        // ✅ Navigation property to link with Reports
+        // ✅ New: Add frequency (Daily / Weekly / Monthly)
+        [Required]
+        [Display(Name = "Send Frequency")]
+        public string Frequency { get; set; }
+
         [ForeignKey("ReportId")]
         public Reports Report { get; set; }
     }
-
 }

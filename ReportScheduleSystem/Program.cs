@@ -30,10 +30,10 @@ app.UseRouting();
 
 
 app.UseAuthorization();
-app.UseHangfireDashboard();
+app.UseHangfireDashboard("/hangfire");
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Schedule}/{action=Index}/{id?}");
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

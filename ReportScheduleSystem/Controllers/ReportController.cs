@@ -60,11 +60,11 @@ namespace ReportScheduleSystem.Controllers
                 return View(reports);
             }
 
-            var allowedExtensions = new[] { ".pdf", ".docx", ".xlsx", ".png", ".jpg" };
+            var allowedExtensions = new[] { ".pdf", ".docx", ".xlsx", ".png", ".jpg", ".jpeg" };
             var fileExtension = Path.GetExtension(file.FileName).ToLower();
             if (!allowedExtensions.Contains(fileExtension))
             {
-                ModelState.AddModelError("File", "Invalid file type. Allowed types: PDF, DOCX, XLSX, PNG, JPG.");
+                ModelState.AddModelError("File", "Invalid file type. Allowed types: PDF, DOCX, XLSX, PNG, JPG.,.jpeg");
                 return View(reports);
             }
 

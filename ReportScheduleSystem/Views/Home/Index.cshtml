@@ -1,8 +1,25 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿
+@{
+    ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="index.html">Home</p>
+<div class="container mt-5">
+    <h2 class="text-center">Welcome to Report Scheduling System</h2>
+    <div class="row mt-4 justify-content-center">
+        <div class="col-md-4 text-center">
+            <div class="card shadow p-4">
+                <h4>Manage Reports</h4>
+                <p>Create and manage your reports.</p>
+                <a class="btn btn-primary" asp-controller="Report" asp-action="Index">Go to Reports</a>
+            </div>
+        </div>
+
+        <div class="col-md-4 text-center">
+            <div class="card shadow p-4">
+                <h4>Manage Schedules</h4>
+                <p>Schedule your report delivery.</p>
+                <a class="btn btn-success" asp-controller="Schedule" asp-action="Index">Go to Schedules</a>
+            </div>
+        </div>
+    </div>
 </div>

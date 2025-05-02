@@ -69,12 +69,39 @@
 
             <div class="form-group">
                 <label asp-for="Frequency" class="control-label"></label>
-                <select asp-for="Frequency" class="form-control">
+                <select asp-for="Frequency" class="form-control" id="FrequencySelect">
                     <option value="Daily">Daily</option>
                     <option value="Weekly">Weekly</option>
                     <option value="Monthly">Monthly</option>
+                    <option value="Yearly">Yearly</option>
+                    <option value="Once">Once</option>
                 </select>
                 <span asp-validation-for="Frequency" class="text-danger"></span>
+            </div>
+
+            <div class="form-group" id="weeklyOptions" style="display: none;">
+                <label for="WeeklyDay">Day of Week</label>
+                <select class="form-control" name="WeeklyDay" id="WeeklyDay">
+                    <option value="Sunday">Sunday</option>
+                    <option value="Monday">Monday</option>
+                    <option value="Tuesday">Tuesday</option>
+                    <option value="Wednesday">Wednesday</option>
+                    <option value="Thursday">Thursday</option>
+                    <option value="Friday">Friday</option>
+                    <option value="Saturday">Saturday</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="monthlyOptions" style="display: none;">
+                <label for="MonthlyDay">Day of Month (1–31)</label>
+                <input type="number" min="1" max="31" class="form-control" name="MonthlyDay" id="MonthlyDay" />
+            </div>
+
+            <div class="form-group" id="yearlyOptions" style="display: none;">
+                <label for="YearlyMonth">Month (1–12)</label>
+                <input type="number" min="1" max="12" class="form-control" name="YearlyMonth" id="YearlyMonth" />
+                <label for="YearlyDay">Day (1–31)</label>
+                <input type="number" min="1" max="31" class="form-control" name="YearlyDay" id="YearlyDay" />
             </div>
 
             <div class="form-group">
@@ -111,7 +138,6 @@
 
             if (reportId) {
                 $('#reportIdError').text("");
-
                 $.get('/Schedule/GetReportDetails', { id: reportId }, function (data) {
                     $('#User_Id').val(data.user_Id);
                     $('#Name').val(data.name);
@@ -134,10 +160,23 @@
             }
         });
 
+        $('#FrequencySelect').change(function () {
+            const frequency = $(this).val();
+            $('#weeklyOptions, #monthlyOptions, #yearlyOptions').hide();
+
+            if (frequency === 'Weekly') {
+                $('#weeklyOptions').show();
+            } else if (frequency === 'Monthly') {
+                $('#monthlyOptions').show();
+            } else if (frequency === 'Yearly') {
+                $('#yearlyOptions').show();
+            }
+        });
+
         $('#scheduledDateTime').change(function () {
-            var dt = new Date($(this).val());
+            const dt = new Date($(this).val());
             if (!isNaN(dt.getTime())) {
-                var cron = dt.getMinutes() + ' ' + dt.getHours() + ' ' + dt.getDate() + ' ' + (dt.getMonth() + 1) + ' *';
+                const cron = dt.getMinutes() + ' ' + dt.getHours() + ' ' + dt.getDate() + ' ' + (dt.getMonth() + 1) + ' *';
                 $('#CronExpression').val(cron);
             }
         });

@@ -26,7 +26,7 @@ namespace ReportScheduleSystem.Controllers
             return View(schedules);
         }
 
-        
+
         [HttpGet]
         public IActionResult GetReportDetails(int id)
         {
@@ -64,7 +64,7 @@ namespace ReportScheduleSystem.Controllers
                     Description = report.Description,
                     Is_Active = report.Is_Active,
                     User_Id = report.User_Id,
-                     ScheduledDateTime = DateTime.Now
+                    ScheduledDateTime = DateTime.Now
                 };
 
                 ViewBag.ShowDropdown = false;
@@ -77,7 +77,7 @@ namespace ReportScheduleSystem.Controllers
             ViewBag.ShowDropdown = true;
             ViewBag.ReportList = new SelectList(_Context.Reports, "Id", "Name"); // You can change to show "Name" instead of "Id" if you want
 
-            return View(new Schedule{ ScheduledDateTime = DateTime.Now });
+            return View(new Schedule { ScheduledDateTime = DateTime.Now });
         }
 
         // ✅ POST: Create
@@ -120,7 +120,7 @@ namespace ReportScheduleSystem.Controllers
             // ✅ Add recurring job with Hangfire
             RecurringJob.AddOrUpdate<ScheduleController>(
                 $"job-{schedule.ScheduleId}",
-                x => x.SendReport(schedule.ReportId,schedule.Email),
+                x => x.SendReport(schedule.ReportId, schedule.Email),
                 cron
             );
 
@@ -128,7 +128,7 @@ namespace ReportScheduleSystem.Controllers
         }
 
         [HttpGet]
-        [AutomaticRetry(Attempts = 0)]  
+        [AutomaticRetry(Attempts = 0)]
         public async Task<IActionResult> SendReport(int reportId, string toEmail)
         {
             try
@@ -213,7 +213,7 @@ namespace ReportScheduleSystem.Controllers
         // ✅ DELETE - GET (Confirmation Page)
         public async Task<IActionResult> Delete(int? id)
         {
-          
+
 
             //var schedule = await _Context.Schedules
             //    .Include(s => s.Report)
@@ -242,4 +242,3 @@ namespace ReportScheduleSystem.Controllers
 
 
 }
-
